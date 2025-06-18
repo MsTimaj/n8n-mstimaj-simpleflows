@@ -1,0 +1,98 @@
+{
+  "name": "inspo-emailer",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "id": "baf7a245-026d-47d8-99bf-9a8d9e7c8670",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        80,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://zenquotes.io/api/random",
+        "jsonParameters": true,
+        "options": {}
+      },
+      "id": "50be7f63-9bf7-43ad-ad68-79218b4581e2",
+      "name": "Get Quote",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        280,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "your-email@example.com",
+        "subject": "Here's your daily dose of inspiration",
+        "message": "=\"{{$json[0].q}}\"\n– {{$json[0].a}}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        500,
+        20
+      ],
+      "id": "4a47aeef-2054-4d0a-a892-04bb26724495",
+      "name": "Gmail",
+      "webhookId": "a8807a07-40d1-43bf-b1dc-173fe9f212c0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "uJQgxCoz5aDPsd9Z",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Quote",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Quote": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6cb56f2f-3a1e-4fd9-b45b-84b429d5a80a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bdd031fb51c54fd3c7d56fc2ae28314826e53cb2b073f0c3d8aa871fb569730b"
+  },
+  "id": "ghd6iAyV5bIxuCtL",
+  "tags": []
+}

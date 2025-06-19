@@ -1,0 +1,285 @@
+{
+  "name": "JSON Automated Tips",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 21
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -740,
+        0
+      ],
+      "id": "8c2cf9dc-3e2a-4975-8368-aefdc03fe95c",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-3.5-turbo",
+          "mode": "list",
+          "cachedResultName": "GPT-3.5-TURBO"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "Here are some JSON tips that have already been used:\n{{ $json.tips.join(\"\\n\") }}\n\nGive a brand new, beginner-friendly JSON tip not listed above. Keep it under 25 words. Don't number your response.\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -100,
+        0
+      ],
+      "id": "e669d79a-fd41-4e0f-bbd5-3efa15af3f48",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "AkfPv3pMp94PXEPN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "930c5859-c076-487f-ae76-486c7b057829",
+              "name": "message.content",
+              "value": "={{ $json.message.content }}",
+              "type": "string"
+            },
+            {
+              "id": "bb6cce32-23ca-4098-8fe4-ed1d51abe151",
+              "name": "date",
+              "value": "={{ new Date().toISOString().slice(0, 10) }}\n\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        260,
+        0
+      ],
+      "id": "fbbcf865-7484-42f2-811a-0168e9f7dece",
+      "name": "Format Tip"
+    },
+    {
+      "parameters": {
+        "sendTo": "your-email@example.com",
+        "subject": "📦 JSON Tip of the Day:",
+        "message": "={{ $json.date }}<br><br>{{ $json.message.content }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        100
+      ],
+      "id": "fbf97208-def2-49c2-a9c6-e6f505103d89",
+      "name": "Gmail",
+      "webhookId": "8aa94524-9f41-4016-9ba8-bcc65ce4eaef",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "tiwCSTJWbUTiKvi0",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "your-google-sheet-id",
+          "mode": "list",
+          "cachedResultName": "JSON-Tips-Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/your-google-sheet-id/edit#gid=2105139977"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2105139977,
+          "mode": "list",
+          "cachedResultName": "Tips",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/your-google-sheet-id/edit#gid=2105139977"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $json.date }}",
+            "Tip": "={{ $json.message.content }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tip",
+              "displayName": "Tip",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        480,
+        -100
+      ],
+      "id": "26b22593-bd99-4a24-8ab3-f9cbca76e30e",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "z2lxC21fALq4rEsg",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://docs.google.com/spreadsheets/d/your-google-sheet-id/edit?usp=sharing/export?format=csv&range=B2:B",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -520,
+        0
+      ],
+      "id": "154a393a-ace0-4b77-9c05-48a02eea3774",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const csvData = $input.first().json.data;\n\nconst tips = csvData\n  .split('\\n')\n  .map(t => t.trim())\n  .filter(t => t.length > 0);\n\nreturn [{ json: { tips } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -300,
+        0
+      ],
+      "id": "c18dc5ed-dd35-4b25-9bb6-6b74f2df7773",
+      "name": "Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Format Tip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Tip": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bd75f6ef-8a11-4159-8a92-309fe637e026",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bdd031fb51c54fd3c7d56fc2ae28314826e53cb2b073f0c3d8aa871fb569730b"
+  },
+  "id": "LYXxyKYBZFXHn4Fe",
+  "tags": [
+    {
+      "name": "Rise & Vibe",
+      "id": "oVJLO5lGqU7vEZ5e",
+      "createdAt": "2025-06-19T16:18:45.216Z",
+      "updatedAt": "2025-06-19T16:18:45.216Z"
+    }
+  ]
+}

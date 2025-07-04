@@ -50,11 +50,11 @@
       ],
       "id": "4a47aeef-2054-4d0a-a892-04bb26724495",
       "name": "Gmail",
-      "webhookId": "a8807a07-40d1-43bf-b1dc-173fe9f212c0",
+      "webhookId": "",
       "credentials": {
         "gmailOAuth2": {
-          "id": "uJQgxCoz5aDPsd9Z",
-          "name": "Gmail account"
+          "id": "YOUR_GMAIL_CREDENTIAL_ID_HERE",
+          "name": "YOUR_GMAIL_CREDENTIAL_NAME_HERE"
         }
       }
     }
@@ -90,8 +90,8 @@
   },
   "versionId": "6cb56f2f-3a1e-4fd9-b45b-84b429d5a80a",
   "meta": {
-    "templateCredsSetupCompleted": true,
-    "instanceId": "bdd031fb51c54fd3c7d56fc2ae28314826e53cb2b073f0c3d8aa871fb569730b"
+    "templateCredsSetupCompleted": false,
+    "instanceId": "your-n8n-instance-id"
   },
   "id": "ghd6iAyV5bIxuCtL",
   "tags": []

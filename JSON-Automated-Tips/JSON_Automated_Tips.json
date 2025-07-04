@@ -47,8 +47,8 @@
       "name": "OpenAI",
       "credentials": {
         "openAiApi": {
-          "id": "AkfPv3pMp94PXEPN",
-          "name": "OpenAi account"
+          "id": "YOUR_OPENAI_CREDENTIAL_ID_HERE",
+          "name": "YOUR_OPENAI_CREDENTIAL_NAME_HERE"
         }
       }
     },
@@ -96,11 +96,11 @@
       ],
       "id": "fbf97208-def2-49c2-a9c6-e6f505103d89",
       "name": "Gmail",
-      "webhookId": "8aa94524-9f41-4016-9ba8-bcc65ce4eaef",
+      "webhookId": "",
       "credentials": {
         "gmailOAuth2": {
-          "id": "tiwCSTJWbUTiKvi0",
-          "name": "Gmail account 2"
+          "id": "YOUR_GMAIL_CREDENTIAL_ID_HERE",
+          "name": "YOUR_GMAIL_CREDENTIAL_NAME_HERE"
         }
       }
     },
@@ -163,8 +163,8 @@
       "name": "Google Sheets",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "z2lxC21fALq4rEsg",
-          "name": "Google Sheets account"
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID_HERE",
+          "name": "YOUR_GOOGLE_SHEETS_CREDENTIAL_NAME_HERE"
         }
       }
     },
@@ -270,8 +270,8 @@
   },
   "versionId": "bd75f6ef-8a11-4159-8a92-309fe637e026",
   "meta": {
-    "templateCredsSetupCompleted": true,
-    "instanceId": "bdd031fb51c54fd3c7d56fc2ae28314826e53cb2b073f0c3d8aa871fb569730b"
+    "templateCredsSetupCompleted": false,
+    "instanceId": "your-n8n-instance-id"
   },
   "id": "LYXxyKYBZFXHn4Fe",
   "tags": [

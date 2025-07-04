@@ -1,0 +1,337 @@
+{
+  "name": "Trendingtech_topics_inspo",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "cronExpression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "id": "8e414474-62f3-4915-8c65-f413ec0a479b",
+      "name": "Daily 9AM Trigger1",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        -1100,
+        120
+      ],
+      "webhookId": ""
+    },
+    {
+      "parameters": {
+        "url": "https://feeds.feedburner.com/TechCrunch/",
+        "options": {}
+      },
+      "id": "3ac291c5-7d24-40b9-a79f-61e97f7529fd",
+      "name": "Fetch TechCrunch RSS1",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-3.5-turbo",
+          "mode": "list",
+          "cachedResultName": "GPT-3.5-TURBO"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a TikTok content strategist helping creators turn real tech and AI articles into short-form video ideas.\n\nGiven the scraped article content below, do the following:\n\n1. Create a short, attention-grabbing title based on the article (max 7 words).\n2. Summarize the article in 1–2 clear, accurate sentences. Do not add extra context or invent information.\n3. Write a 15-second TikTok hook that introduces the topic to a curious, tech-savvy audience. Keep it informal and engaging.\n4. Generate 3–5 hashtags based only on the actual article content.\n\nRespond with exactly this JSON format:\n\n```json\n{\n  \"title\": \"Title here\",\n  \"summary\": \"Summary here\",\n  \"hook\": \"Hook here\",\n  \"hashtags\": [\"#hashtag1\", \"#hashtag2\", \"#hashtag3\"]\n}\nUse only the provided information:\n\nTitle: {{$json[\"title\"] || \"Untitled\"}}\nLink: {{$json[\"link\"] || \"N/A\"}}\nContent: {{$json[\"contentSnippet\"] || $json[\"content\"] || \"No content available.\"}}\n\nDo not include anything outside the JSON block.",
+              "role": "assistant"
+            }
+          ]
+        },
+        "jsonOutput": "={{ false }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -700,
+        120
+      ],
+      "id": "de0c5901-ae60-46f7-9a93-dac79ed482c0",
+      "name": "OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "YOUR_OPENAI_CREDENTIAL_ID_HERE",
+          "name": "YOUR_OPENAI_CREDENTIAL_NAME_HERE"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
+          "mode": "list",
+          "cachedResultName": "YOUR_SHEET_NAME_HERE",
+          "cachedResultUrl": "YOUR_GOOGLE_SHEET_URL_HERE"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "YOUR_SHEET_TAB_NAME_HERE",
+          "cachedResultUrl": "YOUR_SHEET_TAB_URL_HERE"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "hashtags": "={{ $json.full.hashtags }}",
+            "Hook": "={{ $json.full.hook }}",
+            "Summary": "={{ $json.full.summary }}",
+            "Title": "={{ $json.full.title }}",
+            "Date": "={{ new Date().toISOString().split(\"T\")[0] }}\n"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Hook",
+              "displayName": "Hook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "hashtags",
+              "displayName": "hashtags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        140,
+        140
+      ],
+      "id": "5cb1c9b5-663b-411e-888e-2f7f528242c9",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID_HERE",
+          "name": "YOUR_GOOGLE_SHEETS_CREDENTIAL_NAME_HERE"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const messages = $json[\"data\"] || [$json]; // support both array and single message\n\nreturn messages.map(item => {\n  let raw = item.message?.content || item.content || \"\";\n\n  // Remove markdown-style code block (```json\\n ... \\n```)\n  raw = raw.trim().replace(/^```json\\s*/, \"\").replace(/```$/, \"\").trim();\n\n  try {\n    const parsed = JSON.parse(raw);\n    return {\n      json: {\n        title: parsed.title || \"\",\n        summary: parsed.summary || \"\",\n        hook: parsed.hook || \"\",\n        hashtags: (parsed.hashtags || []).join(\" \"),\n        full: parsed\n      }\n    };\n  } catch (err) {\n    return {\n      json: {\n        error: \"Invalid JSON\",\n        raw\n      }\n    };\n  }\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -100,
+        140
+      ],
+      "id": "dc63e806-6594-4a66-bfce-7c40a8a6a34e",
+      "name": "Parse AI Json1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $node[\"Split Topics1\"].context[\"noItemsLeft\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1e2d4047-410d-4f64-be74-60b2db4a4e89",
+      "name": "If1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        340,
+        140
+      ],
+      "typeExecuteOnce": false
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -340,
+        120
+      ],
+      "id": "11013ac4-c583-415c-8590-d5fb3457f251",
+      "name": "Split Topics1"
+    },
+    {
+      "parameters": {
+        "sendTo": "YOUR_EMAIL_HERE",
+        "subject": "✅ Your TikTok Topic Ideas Are Ready!",
+        "message": "=<p>Hello!</p>\n\n<p>Your trending TikTok/Tech topic ideas have been successfully generated and added to your Google Sheet for <strong>{{ $now.format('MMMM D') }}</strong>.</p>\n\n<p>You can now review them and start creating.</p>\n\n<p>— <em>n8n SimpleFlows</em></p>\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        560,
+        40
+      ],
+      "id": "cbda8c47-1e8d-4ecf-8799-9aaf02375dda",
+      "name": "Gmail1",
+      "webhookId": "",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID_HERE",
+          "name": "YOUR_GMAIL_CREDENTIAL_NAME_HERE"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Daily 9AM Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Fetch TechCrunch RSS1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch TechCrunch RSS1": {
+      "main": [
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "Split Topics1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Json1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Gmail1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Split Topics1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Topics1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Parse AI Json1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b9d9aed0-8313-41f2-8f16-bf7bc4fdd82b",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "your-n8n-instance-id"
+  },
+  "id": "pgGR37hMsZ6WYF3K",
+  "tags": []
+}

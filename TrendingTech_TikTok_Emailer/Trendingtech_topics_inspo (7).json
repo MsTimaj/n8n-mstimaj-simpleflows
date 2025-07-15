@@ -1,0 +1,351 @@
+{
+  "name": "Trendingtech_topics_inspo",
+  "nodes": [
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-3.5-turbo",
+          "mode": "list",
+          "cachedResultName": "GPT-3.5-TURBO"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a TikTok content strategist helping creators turn real tech and AI articles into short-form video ideas.\n\nGiven the scraped article content below, do the following:\n\n1. Create a short, attention-grabbing title based on the article (max 7 words).\n2. Summarize the article in 1–2 clear, accurate sentences. Do not add extra context or invent information.\n3. Write a 15-second TikTok hook that introduces the topic to a curious, tech-savvy audience. Keep it informal and engaging.\n4. Generate 3–5 hashtags based only on the actual article content.\n\nRespond with exactly this JSON format:\n\n```json\n{\n  \"title\": \"Title here\",\n  \"summary\": \"Summary here\",\n  \"hook\": \"Hook here\",\n  \"hashtags\": [\"#hashtag1\", \"#hashtag2\", \"#hashtag3\"]\n}\nUse only the provided information:\n\nTitle: {{$json[\"title\"] || \"Untitled\"}}\nLink: {{$json[\"link\"] || \"N/A\"}}\nContent: {{$json[\"contentSnippet\"] || $json[\"content\"] || \"No content available.\"}}\n\nDo not include anything outside the JSON block.",
+              "role": "assistant"
+            }
+          ]
+        },
+        "jsonOutput": "={{ false }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -340,
+        -700
+      ],
+      "id": "ad37bb38-f163-4577-b870-5a73b34ec0a5",
+      "name": "OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "AkfPv3pMp94PXEPN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9e0998d6-e6ff-47af-ac31-4e7434e37816",
+              "leftValue": "={{ $node[\"Split In Batches\"].context[\"noItemsLeft\"] }}",
+              "rightValue": "={{ true }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "22f481a6-e6f0-44c2-98b0-2dc3912d4946",
+      "name": "Check If More Batches",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        700,
+        -680
+      ],
+      "typeExecuteOnce": false
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        20,
+        -700
+      ],
+      "id": "338687a7-da6a-4878-b7d7-1dd0aff0329c",
+      "name": "Split In Batches"
+    },
+    {
+      "parameters": {},
+      "id": "ec590355-4d92-4b97-9ce7-6b67e9e238c0",
+      "name": "Daily 9AM Trigger",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        -740,
+        -700
+      ],
+      "webhookId": ""
+    },
+    {
+      "parameters": {
+        "jsCode": "const messages = $json[\"data\"] || [$json]; // support both array and single message\n\nreturn messages.map(item => {\n  let raw = item.message?.content || item.content || \"\";\n\n  // Remove markdown-style code block (```json\\n ... \\n```)\n  raw = raw.trim().replace(/^```json\\s*/, \"\").replace(/```$/, \"\").trim();\n\n  try {\n    const parsed = JSON.parse(raw);\n    return {\n      json: {\n        title: parsed.title || \"\",\n        summary: parsed.summary || \"\",\n        hook: parsed.hook || \"\",\n        hashtags: (parsed.hashtags || []).join(\" \"),\n        full: parsed\n      }\n    };\n  } catch (err) {\n    return {\n      json: {\n        error: \"Invalid JSON\",\n        raw\n      }\n    };\n  }\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        -680
+      ],
+      "id": "da5de299-5d8d-4250-bda3-f193de2588d5",
+      "name": "Parse AI Json"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1RzM9y8ozvrfGzlDzFbjLCpFElca27C2YHqOhYlJxLxk",
+          "mode": "list",
+          "cachedResultName": "Trending_TikTok_Ideas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RzM9y8ozvrfGzlDzFbjLCpFElca27C2YHqOhYlJxLxk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RzM9y8ozvrfGzlDzFbjLCpFElca27C2YHqOhYlJxLxk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Title": "={{ $json.title }}",
+            "Summary": "={{ $json.summary }}",
+            "Hook": "={{ $json.hook }}",
+            "hashtags": "={{ $json.hashtags }}",
+            "Date": "={{ $now.toFormat('MM/dd/yyyy') }}\n\n"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Hook",
+              "displayName": "Hook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "hashtags",
+              "displayName": "hashtags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        500,
+        -680
+      ],
+      "id": "860089fc-614d-4825-9b15-9fb6fdd11566",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "z2lxC21fALq4rEsg",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "jallohfe@gmail.com",
+        "subject": "✅ Your TikTok Topic Ideas Are Ready!",
+        "message": "=<p>Hello!</p>\n\n<p>Your trending TikTok/Tech topic ideas have been successfully generated and added to your Google Sheet for <strong>{{ $now.format('MMMM D') }}</strong>.</p>\n\n<p>You can now review them and start creating.</p>\n\n<p>— <em>n8n SimpleFlows</em></p>\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        940,
+        -700
+      ],
+      "id": "08db7559-3068-49d4-9222-5b74e7bb30a3",
+      "name": "Gmail",
+      "webhookId": "9203d3ce-ef44-4607-ae81-78c250702b5b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "tiwCSTJWbUTiKvi0",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://feeds.feedburner.com/TechCrunch/",
+        "options": {}
+      },
+      "id": "703ea907-7bcf-4103-978b-cd5540249d1f",
+      "name": "Fetch TechCrunch RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        -700
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If More Batches": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Parse AI Json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily 9AM Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch TechCrunch RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Json": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Check If More Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch TechCrunch RSS": {
+      "main": [
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0475fa03-3be6-48dd-8021-5df0653fb904",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bdd031fb51c54fd3c7d56fc2ae28314826e53cb2b073f0c3d8aa871fb569730b"
+  },
+  "id": "pgGR37hMsZ6WYF3K",
+  "tags": []
+}

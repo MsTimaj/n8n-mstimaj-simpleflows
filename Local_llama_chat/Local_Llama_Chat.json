@@ -1,0 +1,146 @@
+{
+  "name": "Local_Llama_Chat",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "1b9feb4d-6d07-4360-af6e-5da9c9245da5",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        680,
+        -80
+      ],
+      "webhookId": "local-llama-chat-webhook",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {
+          "temperature": 0.7,
+          "topK": 40,
+          "topP": 0.9,
+          "numPredict": 100
+        }
+      },
+      "id": "7e85aa40-5b4d-41d3-a929-1dcc770195f6",
+      "name": "Ollama Chat Model (Fast)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "position": [
+        920,
+        120
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "ollamaApi": {
+          "id": "YOUR_OLLAMA_CREDENTIAL_ID_HERE",
+          "name": "YOUR_OLLAMA_CREDENTIAL_NAME_HERE"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "1f3c8308-7cff-4798-94a8-20ae0fb08510",
+      "name": "Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        920,
+        -80
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "content": "🤖 Local Llama Chat Workflow\n\nWhat This Does:\n• Creates a webhook endpoint for AI chat\n• Uses local Llama models via Ollama\n• Maintains conversation memory\n• Works completely offline and private\n\nPerfect For:\n• Private AI conversations\n• Content creation assistance\n• Learning and explanations\n• Development help\n• Integration with other apps\n\nKey Features:\n• No external API calls\n• Complete data privacy\n• Customizable responses\n• Webhook integration ready\n\n---\n\nFollow mstimaj for more automation workflows:\n• GitHub: https://github.com/mstimaj\n• YouTube: @mstimaj\n• TikTok: @mstimaj",
+        "height": 550,
+        "width": 520
+      },
+      "id": "c4a8cac2-af6c-416a-a4d2-c434ee371866",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -20,
+        -320
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "⚙️ Setup Instructions\n\n1. Install Ollama:\n• Download from https://ollama.ai\n• Install for your OS\n\n2. Pull Model:\n• Run: ollama pull llama3.2:3b\n\n3. Import Workflow:\n• Download this JSON file\n• Import into N8N\n• Add Ollama credentials\n\n4. Configure:\n• Set Base URL: http://localhost:11434\n• No API key needed for local\n• Test the webhook\n\n5. Use:\n• Activate workflow\n• Send messages via webhook\n• Get AI responses instantly\n\n---\n\nCreated by mstimaj\nFollow for more automation workflows:\n• GitHub: https://github.com/mstimaj\n• YouTube: @mstimaj\n• TikTok: @mstimaj",
+        "height": 500,
+        "width": 420,
+        "color": 6
+      },
+      "id": "8d8a9aa4-ff98-4f92-bff9-562f805dfe60",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        140,
+        200
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1040,
+        240
+      ],
+      "id": "f7bea589-6886-46de-ac66-f56f30b5cbe3",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model (Fast)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "827b37ec-a28a-4d38-9b30-2ae4cd70a61a",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "your-n8n-instance-id"
+  },
+  "id": "0OmUuzG9ADionLOo",
+  "tags": []
+}

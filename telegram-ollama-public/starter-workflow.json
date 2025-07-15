@@ -1,0 +1,149 @@
+{
+  "name": "🧠 Telegram to Ollama AI Bot (Starter)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "telegram-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-starter",
+      "name": "📥 Telegram Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -740,
+        -300
+      ],
+      "webhookId": "telegram-webhook-starter"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "chatId",
+              "name": "chatId",
+              "value": "={{ $json.body.message.chat.id }}",
+              "type": "number"
+            },
+            {
+              "id": "text",
+              "name": "text",
+              "value": "={{ $json.body.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "extract-starter",
+      "name": "🔍 Extract Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -540,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.telegram.org/botYOUR_BOT_TOKEN_HERE/sendMessage",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{ $('🔍 Extract Message').first().json.chatId }}"
+            },
+            {
+              "name": "text",
+              "value": "This is just a starter workflow! The full version includes all AI nodes, so your messages are processed by local AI models using Ollama and the bot replies automatically. Get the full Telegram to Ollama AI Bot, with setup guide, at my Ko-fi shop: https://ko-fi.com/mstimaj/shop."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "send-telegram-starter",
+      "name": "📤 Send Telegram",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -340,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"status\": \"success\", \"message\": \"Message processed\"}",
+        "options": {}
+      },
+      "id": "response-starter",
+      "name": "✅ Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -140,
+        -300
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "📥 Telegram Webhook": {
+      "main": [
+        [
+          {
+            "node": "🔍 Extract Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 Extract Message": {
+      "main": [
+        [
+          {
+            "node": "📤 Send Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📤 Send Telegram": {
+      "main": [
+        [
+          {
+            "node": "✅ Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "starter-version",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "starter-template"
+  },
+  "id": "starter-workflow",
+  "tags": ["telegram", "ollama", "ai", "bot", "n8n", "starter"]
+} 

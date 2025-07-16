@@ -28,7 +28,7 @@ This is a public, non-AI starter version of the Telegram to Ollama AI Bot. It le
 
 👉 [See the full setup guide here.](./telegram-ollama-public/README.md)
 
-Want the full AI-powered version? [Get it on Ko-fi!](https://ko-fi.com/mstimaj/shop)
+Want the full AI-powered version? [Get it on Ko-fi!](https://ko-fi.com/s/a3bb939baa)
 
 ## Getting Started
 

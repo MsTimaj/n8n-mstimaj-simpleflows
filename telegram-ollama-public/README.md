@@ -159,7 +159,7 @@ For the complete AI-powered bot with:
 - 📚 **Complete setup guide** with troubleshooting
 - 🎁 **Bonus extras** and advanced features
 
-👉 **[Get the Full Version on Ko-fi ($10)](https://ko-fi.com/mstimaj/shop)**
+👉 **[Get the Full Version on Ko-fi ($10)](https://ko-fi.com/s/a3bb939baa)**
 
 ---
 
